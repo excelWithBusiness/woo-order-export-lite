@@ -17,6 +17,7 @@ You could filter orders by many parameters, not only by order date or status.
 You could select the fields to export, rename labels, reorder columns.
 
 The export includes
+
 * order data 
 * summary order details (# of items, discount, taxes...)
 * customer details (both shipping and  billing)
@@ -29,10 +30,10 @@ The plugin can export any custom fields assigned to orders/products/coupons.
 Please, create a topic in "Support" if you need new features.
 
 == Installation ==
-= Automatic Installation=
+= Automatic Installation =
 Go to Wordpress dashboard, click  Plugins / Add New  , type 'woo export lite' and hit Enter.
 Install and activate plugin, visit WooCommerce > Export Orders.
-= Manual Installation=
+= Manual Installation =
 [Please, visit the link and follow the instructions](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation)
 
 == Frequently Asked Questions ==
