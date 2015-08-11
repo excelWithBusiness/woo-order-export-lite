@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Order Export\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: Fri Aug 07 2015 16:31:08 GMT+0300 (FET)\n"
-"PO-Revision-Date: Fri Aug 07 2015 16:36:19 GMT+0300 (FET)\n"
+"PO-Revision-Date: Mon Aug 10 2015 17:47:43 GMT+0300 (FET)\n"
 "Last-Translator: wp-irfan <1@1.com>\n"
 "Language-Team: \n"
 "Language: Russian\n"
@@ -23,181 +23,197 @@ msgstr ""
 "X-Loco-Target-Locale: ru_RU\n"
 "X-Generator: Loco - https://localise.biz/"
 
-#: ../../classes/class-wc-table-schedules.php:13
-msgid "item"
-msgstr ""
-
-#: ../../classes/class-wc-table-schedules.php:14
-msgid "items"
-msgstr ""
-
-#: ../../classes/class-wc-table-schedules.php:111
-msgid "Subject: "
-msgstr ""
-
-#: ../../classes/class-wc-table-schedules.php:111
-msgid "To: "
-msgstr ""
-
-#: ../../classes/class-wc-order-export-engine.php:12
-msgid "Wrong format"
-msgstr ""
-
-#: ../../classes/class-wc-order-export-admin.php:47 ../../classes/class-wc-order-
-#: export-admin.php:47
-msgid "Export Orders"
-msgstr ""
-
-#: ../../classes/class-wc-order-export-admin.php:240
-msgid "Settings Updated"
-msgstr ""
-
-#: ../../classes/exports/class-woe-export-email.php:12
-msgid "Can not create temporary file"
-msgstr ""
-
 #: ../../classes/exports/class-woe-export-email.php:16
 #, php-format
 msgid "Order Export for %s"
-msgstr ""
+msgstr "Экспорт заказов для %s"
 
 #: ../../classes/exports/class-woe-export-email.php:32
 #, php-format
 msgid "We have sent file '%s' to '%s'"
-msgstr ""
+msgstr "Мы отправили файл %s  %s"
 
 #: ../../classes/exports/class-woe-export-ftp.php:19
 #, php-format
 msgid "Can not connect to %s using port %s"
-msgstr ""
+msgstr "Нет подключения к  %s( порт %s)"
 
 #: ../../classes/exports/class-woe-export-ftp.php:23
 #, php-format
 msgid "Can not login to FTP as user '%s' using password '%s'"
-msgstr ""
+msgstr "Попытка входа на Ftp не удалась ( пользователь %s пароль %s)"
 
 #: ../../classes/exports/class-woe-export-ftp.php:28
 msgid "Can not switch to Passive Mode"
-msgstr ""
+msgstr "Невозможно переключиться в пассивный режим"
 
 #: ../../classes/exports/class-woe-export-ftp.php:35
 #, php-format
 msgid "Can not change FTP directory to '%s'"
-msgstr ""
+msgstr "Невозможно сменить директорию на %s"
 
 #: ../../classes/exports/class-woe-export-ftp.php:39
 #, php-format
 msgid "Can not upload file '%s'"
-msgstr ""
+msgstr "Невозможно загрузить файл %s"
 
 #: ../../classes/exports/class-woe-export-ftp.php:43
 #, php-format
 msgid "We have uploaded file '%s' to '%s'"
-msgstr ""
+msgstr "Файл %s был загружен на %s"
+
+#: ../../classes/class-wc-table-schedules.php:13
+msgid "item"
+msgstr "продукт"
+
+#: ../../classes/class-wc-table-schedules.php:14
+msgid "items"
+msgstr "продукты"
+
+#: ../../classes/class-wc-table-schedules.php:111
+msgid "Subject: "
+msgstr "Тема:"
+
+#: ../../classes/class-wc-table-schedules.php:111
+msgid "To: "
+msgstr "Кому:"
+
+#: ../../classes/class-wc-order-export-engine.php:12
+msgid "Wrong format"
+msgstr "Неверный формат"
+
+#: ../../classes/class-wc-order-export-admin.php:47 ../../classes/class-wc-order-
+#: export-admin.php:47
+msgid "Export Orders"
+msgstr "Экспорт"
+
+#: ../../classes/class-wc-order-export-admin.php:240
+msgid "Settings Updated"
+msgstr "Настройки обновлены"
+
+#: ../../classes/exports/class-woe-export-email.php:12
+msgid "Can not create temporary file"
+msgstr "Не могу создать временный файл"
 
 #: ../../classes/formats/class-woe-formatter-csv.php:48
 msgid "<td colspan=10><b>No results</b></td>"
-msgstr ""
+msgstr "<td colspan=10><b>Нет результатов</b></td>"
 
 #: ../../view/main.php:8
 msgid "Settings saved"
-msgstr ""
+msgstr "Настройки сохранены"
+
+#: ../../view/settings-form.php:83
+msgid "Custom"
+msgstr "Производный"
+
+#: ../../view/settings-form.php:116
+msgid "to"
+msgstr "в"
+
+#: ../../view/settings-form.php:140
+msgid "Output column titles as first line"
+msgstr "Выводить названия полей в первой строке"
+
+#: ../../view/settings-form.php:141
+msgid "Output utf-8 BOM"
+msgstr "Добавлять utf8 BOM"
+
+#: ../../view/settings-form.php:147
+msgid "Root tag"
+msgstr "Корневой тэг"
+
+#: ../../view/settings-form.php:148
+msgid "Order tag"
+msgstr "Тэг для заказа"
+
+#: ../../view/settings-form.php:149
+msgid "Product tag"
+msgstr "Тэг для продукта"
+
+#: ../../view/settings-form.php:150
+msgid "Coupon tag"
+msgstr "Тэг для купона"
+
+#: ../../view/settings-form.php:162
+msgid "Destination"
+msgstr "Назначение"
+
+#: ../../view/settings-form.php:166
+msgid "EMAIL"
+msgstr "Email"
+
+#: ../../view/settings-form.php:172
+msgid "FTP"
+msgstr "Ftp"
+
+#: ../../view/settings-form.php:178
+msgid "HTTP POST"
+msgstr "Http post"
+
+#: ../../view/settings-form.php:262
+msgid "URL"
+msgstr "Url"
+
+#: ../../view/settings-form.php:409
+msgid "Use sections"
+msgstr "Использовать секции"
+
+#: ../../view/settings-form.php:441
+msgid "Save Settings"
+msgstr "Сохранить настройки"
+
+#: ../../view/export.php:7
+msgid "Export Now"
+msgstr "Экпорт"
 
 #: ../../view/main.php:11 ../../view/settings-form.php:443
 msgid "Export"
-msgstr ""
+msgstr "Экпорт"
 
 #: ../../view/main.php:11
 msgid "Scheduled Exports"
-msgstr ""
+msgstr "Расписание"
+
+#: ../../view/settings-form.php:82
+msgid "Choose"
+msgstr "Выберите"
+
+#: ../../view/settings-form.php:94
+msgid "interval (min)"
+msgstr "Интервал(в минутах)"
+
+#: ../../view/settings-form.php:102
+msgid "Export filename"
+msgstr "Маска файла"
+
+#: ../../view/settings-form.php:114
+msgid "Date range"
+msgstr "Даты"
+
+#: ../../view/settings-form.php:137
+msgid "CSV options"
+msgstr "Опции CSV"
+
+#: ../../view/settings-form.php:142
+msgid "Field Delimiter"
+msgstr "Разделитель полей"
+
+#: ../../view/settings-form.php:143
+msgid "Line Break"
+msgstr "Перенос строки"
+
+#: ../../view/settings-form.php:146
+msgid "XML options"
+msgstr "Настройки XML"
 
 #: ../../view/settings-form.php:26
 msgid "Schedule"
 msgstr "Расписание"
 
-#: ../../view/settings-form.php:82
-msgid "Choose"
-msgstr ""
-
-#: ../../view/settings-form.php:83
-msgid "Custom"
-msgstr ""
-
-#: ../../view/settings-form.php:94
-msgid "interval (min)"
-msgstr ""
-
-#: ../../view/settings-form.php:102
-msgid "Export filename"
-msgstr ""
-
-#: ../../view/settings-form.php:114
-msgid "Date range"
-msgstr ""
-
-#: ../../view/settings-form.php:116
-msgid "to"
-msgstr ""
-
 #: ../../view/settings-form.php:126
 msgid "Format"
 msgstr "Формат"
-
-#: ../../view/settings-form.php:137
-msgid "CSV options"
-msgstr ""
-
-#: ../../view/settings-form.php:140
-msgid "Output column titles as first line"
-msgstr ""
-
-#: ../../view/settings-form.php:141
-msgid "Output utf-8 BOM"
-msgstr ""
-
-#: ../../view/settings-form.php:142
-msgid "Field Delimiter"
-msgstr ""
-
-#: ../../view/settings-form.php:143
-msgid "Line Break"
-msgstr ""
-
-#: ../../view/settings-form.php:146
-msgid "XML options"
-msgstr ""
-
-#: ../../view/settings-form.php:147
-msgid "Root tag"
-msgstr ""
-
-#: ../../view/settings-form.php:148
-msgid "Order tag"
-msgstr ""
-
-#: ../../view/settings-form.php:149
-msgid "Product tag"
-msgstr ""
-
-#: ../../view/settings-form.php:150
-msgid "Coupon tag"
-msgstr ""
-
-#: ../../view/settings-form.php:162
-msgid "Destination"
-msgstr ""
-
-#: ../../view/settings-form.php:166
-msgid "EMAIL"
-msgstr ""
-
-#: ../../view/settings-form.php:172
-msgid "FTP"
-msgstr ""
-
-#: ../../view/settings-form.php:178
-msgid "HTTP POST"
-msgstr ""
 
 #: ../../view/settings-form.php:183
 msgid "Email Settings"
@@ -212,7 +228,7 @@ msgid "Email Subject"
 msgstr "Тема письма"
 
 #: ../../view/settings-form.php:201 ../../view/settings-form.php:251 ../..
-#: /view/settings-form.php:270
+#: view/settings-form.php:270
 msgid "Test"
 msgstr "Проверка"
 
@@ -247,10 +263,6 @@ msgstr "Пассивный режим"
 #: ../../view/settings-form.php:258
 msgid "HTTP POST Settings"
 msgstr "Настройки HTTP  Post"
-
-#: ../../view/settings-form.php:262
-msgid "URL"
-msgstr ""
 
 #: ../../view/settings-form.php:277
 msgid "Test Results"
@@ -292,10 +304,6 @@ msgstr "Адрес доставки"
 msgid "Set up fields to export "
 msgstr "Настроить поля для экпорта"
 
-#: ../../view/settings-form.php:409
-msgid "Use sections"
-msgstr ""
-
 #: ../../view/settings-form.php:416
 msgid "Actions"
 msgstr "Действия"
@@ -311,11 +319,3 @@ msgstr "Статичное поле"
 #: ../../view/settings-form.php:440
 msgid "Preview"
 msgstr "Превью"
-
-#: ../../view/settings-form.php:441
-msgid "Save Settings"
-msgstr ""
-
-#: ../../view/export.php:7
-msgid "Export Now"
-msgstr ""

@@ -28,30 +28,37 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				<input type="radio" name="settings[schedule][type]" value="schedule-1" id="schedule-1" class="wc-oe-schedule-type" <?php echo ((isset( $settings[ 'schedule' ] ) and $settings[ 'schedule' ][ 'type' ] == 'schedule-1') or ! isset( $settings[ 'schedule' ] )) ? 'checked' : '' ?>>
 				<div class="weekday">
 
-					<label>Sun
+					<label>
+						<?php _e('Sun', 'woocommerce-order-export')?>
 						<input type="checkbox" name="settings[schedule][weekday][Sun]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Sun' ] ) ? 'checked' : '' ?>>
 					</label>
-					<label>Mon
+					<label>
+						<?php _e('Mon', 'woocommerce-order-export')?>
 						<input  type="checkbox" name="settings[schedule][weekday][Mon]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Mon' ] ) ? 'checked' : '' ?>>
 					</label>
-					<label>Tue
+					<label>
+						<?php _e('Tue', 'woocommerce-order-export')?>
 						<input  type="checkbox" name="settings[schedule][weekday][Tue]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Tue' ] ) ? 'checked' : '' ?>>
 					</label>
-					<label>Wed
+					<label>
+						<?php _e('Wed', 'woocommerce-order-export')?>
 						<input  type="checkbox" name="settings[schedule][weekday][Wed]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Wed' ] ) ? 'checked' : '' ?>>
 					</label>
-					<label>Thu
+					<label>
+						<?php _e('Thu', 'woocommerce-order-export')?>
 						<input  type="checkbox" name="settings[schedule][weekday][Thu]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Thu' ] ) ? 'checked' : '' ?>>
 					</label>
-					<label>Fri
+					<label>
+						<?php _e('Fri', 'woocommerce-order-export')?>
 						<input  type="checkbox" name="settings[schedule][weekday][Fri]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Fri' ] ) ? 'checked' : '' ?>>
 					</label>
-					<label>Sat
+					<label>
+						<?php _e('Sat', 'woocommerce-order-export')?>
 						<input  type="checkbox" name="settings[schedule][weekday][Sat]" <?php echo isset( $settings[ 'schedule' ][ 'weekday' ][ 'Sat' ] ) ? 'checked' : '' ?>>
 					</label>
 				</div>
 				<div class="">
-					<label style="margin-left: 10px;">Run at:
+					<label style="margin-left: 10px;"><?php _e('Run at', 'woocommerce-order-export')?>:
 						<select name="settings[schedule][run_at]" style="width: 80px">
 							<?php
 							for ( $i = 0; $i <= 23; $i++ ) :
@@ -117,7 +124,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				<input type=text class='date' name="settings[to_date]" id="to_date" value='<?php echo $settings[ 'to_date' ] ?>'>
 			</div>
 
-		<button id="my-quick-export-btn" class="button-primary">Express Export</button>
+		<button id="my-quick-export-btn" class="button-primary"><?php _e('Express Export', 'woocommerce-order-export' ) ?></button>
 	</div>
 	<br>
 	<?php endif; ?>
@@ -384,14 +391,14 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 		<br>
 		<div id='fields_control' style='display:none'>
 			<div class='div_meta' style='display:none'>
-				<label style="width: 40%;">Meta key:<select id='select_custom_meta'>
+				<label style="width: 40%;"><?php _e( 'Meta key', 'woocommerce-order-export' ) ?>:<select id='select_custom_meta'>
 						<?php
 						foreach ( WC_Order_Export_Data_Extractor::get_all_order_custom_meta_fields() as $meta_id => $meta_name ) {
 							echo "<option value=$meta_name >$meta_name</option>";
 						};
 						?>
 					</select></label>
-				<label style="width: 40%;">Column Name:<input type='text' id='colname_custom_meta'/></label>
+				<label style="width: 40%;"><?php _e( 'Column Name', 'woocommerce-order-export' ) ?>:<input type='text' id='colname_custom_meta'/></label>
 
 				<div style="text-align: right;">
 					<button  id='button_custom_meta' class='button-secondary'>Confirm</button>
@@ -399,11 +406,11 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				</div>
 			</div>
 			<div class='div_custom' style='display:none;'>
-				<label style="width: 40%;">Column Name:<input type='text' id='colname_custom_field'/></label>
-				<label style="width: 40%;">Value:<input type='text' id='value_custom_field'/></label>
+				<label style="width: 40%;"><?php _e( 'Column Name', 'woocommerce-order-export' ) ?>:<input type='text' id='colname_custom_field'/></label>
+				<label style="width: 40%;"><?php _e( 'Value', 'woocommerce-order-export' ) ?>:<input type='text' id='value_custom_field'/></label>
 				<div style="text-align: right;">
-					<button  id='button_custom_field' class='button-secondary'>Confirm</button>
-					<button   class='button-secondary button_cancel'>Cancel</button>
+					<button  id='button_custom_field' class='button-secondary'><?php _e( 'Confirm', 'woocommerce-order-export' ) ?></button>
+					<button   class='button-secondary button_cancel'><?php _e( 'Cancel', 'woocommerce-order-export' ) ?></button>
 				</div>
 			</div>
 			<div class='div1'><span><strong><?php _e( 'Use sections', 'woocommerce-order-export' ) ?>:</strong></span> <?php
@@ -423,10 +430,10 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 			<br>
 			<div class="mapping_col_2">
 				<label style="margin-left: 3px;">
-					<input type="checkbox" name="orders_all" value="1"> Select All</label>
+					<input type="checkbox" name="orders_all" value="1"> <?php _e( 'Select All', 'woocommerce-order-export' ) ?></label>
 			</div>
 			<label class="mapping_col_3" style="color: red; font-size: medium;">
-				Drag rows to reorder exported fields
+				<?php _e( 'Drag rows to reorder exported fields', 'woocommerce-order-export' ) ?>
 			</label>
 			<br>
 			<ul id="order_fields"></ul>

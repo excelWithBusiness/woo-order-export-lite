@@ -40,7 +40,7 @@ class WC_Order_Export_Admin {
     }
 
     function load_textdomain() {
-        load_plugin_textdomain($this->text_domain, false, $this->path_plugin . 'i18n/languages');
+        load_plugin_textdomain($this->text_domain, false, dirname( plugin_basename( __FILE__ ) ) . '/../i18n/languages');
     }
 
     public function add_menu() {

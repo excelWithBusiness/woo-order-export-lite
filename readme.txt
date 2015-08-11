@@ -1,6 +1,6 @@
 === Woo Orders Export Lite ===
 Contributors: algolplus
-Tags: woocommerce,export,order,csv,xml,woo export lite
+Tags: woocommerce,export,order,csv,xml,woo export lite,export orders,orders export
 Requires at least: 4.2.4
 Tested up to: 4.2.4
 Stable tag: 1.0
@@ -56,5 +56,8 @@ Yes, you could email a request to algol.plus@gmail.com. We intensively develop t
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.0 =
 First release.
+
+= 1.0.1 =
+Added Russian language

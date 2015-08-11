@@ -36,7 +36,7 @@ class WC_Table_Schedules extends WP_List_Table {
             return;
         ?>
         <div>
-            <input type="button" class="button-secondary" value="Add Schedule" id="add_schedule">
+            <input type="button" class="button-secondary" value="<?php _e('Add Schedule','woocommerce-order-export');?>" id="add_schedule">
         </div>
         <?php
     }
@@ -63,11 +63,11 @@ class WC_Table_Schedules extends WP_List_Table {
 
     public function get_columns() {
         $columns = array();
-        $columns['recurrence'] = 'Recurrence';
-        $columns['destination'] = 'Destination';
-        $columns['destination_details'] = 'Destination Details';
-        $columns['next_event'] = 'Next event';
-        $columns['actions'] = 'Actions';
+        $columns['recurrence'] = __('Recurrence', 'woocommerce-order-export');
+        $columns['destination'] = __('Destination', 'woocommerce-order-export');
+        $columns['destination_details'] = __('Destination Details', 'woocommerce-order-export');
+        $columns['next_event'] = __('Next event', 'woocommerce-order-export');
+        $columns['actions'] = __('Actions', 'woocommerce-order-export');
         return $columns;
     }
 
@@ -77,17 +77,17 @@ class WC_Table_Schedules extends WP_List_Table {
                 $r = '';
                 if (isset($item['schedule'])) {
                     if ($item['schedule']['type'] == 'schedule-1') {
-                        $r = 'Run ';
+                        $r = __('Run ', 'woocommerce-order-export');
                         if (isset($item['schedule']['weekday'])) {
                             $days = array_keys($item['schedule']['weekday']);
-                            $r .= " on " . implode(', ', $days);
+                            $r .= __(" on ", 'woocommerce-order-export') . implode(', ', $days);
                         }
                         if (isset($item['schedule']['run_at'])) {
-                            $r .= '  at ' . $item['schedule']['run_at'];
+                            $r .= __('  at ', 'woocommerce-order-export') . $item['schedule']['run_at'];
                         }
                     } else {
                         if ($item['schedule']['interval'] == 'custom') {
-                            $r = "to run every {$item['schedule']['custom_interval']} minute(s)";
+                            $r = sprintf(__("to run every %s minute(s)", 'woocommerce-order-export'), $item['schedule']['custom_interval']);
                         } else {
                             foreach (wp_get_schedules() as $name => $schedule) {
                                 if ($item['schedule']['interval'] == $name)
@@ -99,7 +99,7 @@ class WC_Table_Schedules extends WP_List_Table {
                 return $r;
             case 'destination':
                 $this->current_destination = $item['destination']['type'];
-                $al = array('ftp' => 'Ftp', 'http' => 'Http post', 'email' => 'Email');
+                $al = array('ftp' => __('Ftp', 'woocommerce-order-export'), 'http' => __('Http post', 'woocommerce-order-export'), 'email' => __('Email', 'woocommerce-order-export') );
                 if (isset($item['destination']['type'])) {
                     return $al[$item['destination']['type']];
                 }
@@ -122,7 +122,7 @@ class WC_Table_Schedules extends WP_List_Table {
                     if ($timestamp && $timestamp > 0)
                         return date("D M j Y G:i:s", $timestamp);
                     else
-                        return "At next page refresh";
+                        return __("At next page refresh", 'woocommerce-order-export');
                 }
             case 'actions':
                 return '<div class="btn-edit button-secondary" data-id="' . $item['id'] . '"><span class="dashicons dashicons-edit"></span></div>' .
