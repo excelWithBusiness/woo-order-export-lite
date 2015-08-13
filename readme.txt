@@ -7,7 +7,7 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-The plugin exports orders out of WooCommerce into csv/xml/json formats
+Provides powerful filters to export Woocomerce orders to CSV/XML/Json file
 
 == Description ==
 The plugin exports sales from WooCommerce to CSV/XML/Json formats.
