@@ -39,12 +39,12 @@ class WOE_Formatter_Xml extends WOE_Formatter {
 				$xml->$labels[$field] = $value;
 		}
 		
-		if($this->mode=='preview') {
+		//if($this->mode=='preview') {
 			//format it!
 			$dom = dom_import_simplexml( $xml );
 			$dom->ownerDocument->formatOutput = true;
 			$xml = $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
-		}
+		//}
 		
 		if($this->has_output_filter)
 			$xml = apply_filters("woe_xml_output_filter", $xml, $rec);
