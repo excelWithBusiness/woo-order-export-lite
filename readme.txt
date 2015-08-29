@@ -25,6 +25,7 @@ The export includes
 * coupons applied
 
 There are a lot of details for each item in Woocommerce shop.
+
 The plugin can export any custom fields assigned to orders/products/coupons.
 
 Please, create a topic in "Support" if you need new features.
@@ -64,9 +65,13 @@ Added Russian language
 
 = 1.0.2 =
 Added Progress bar
+
 Added new csv option "Populate other columns if products exported as rows"
+
 Save last file in folder "output"
 
 = 1.0.3 =
+
 Partially support outdated Select2 (some plugins still use version 3.5.x)
+
 Fixed problem with empty file( preview was ok)
