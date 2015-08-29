@@ -15,7 +15,7 @@ abstract class WOE_Formatter {
 		$this->mode = $mode;
 		$this->settings = $settings;
 		$this->labels = $labels;
-		$this->handle = fopen($filename,'w');
+		$this->handle = fopen($filename,'a');
 		if(!$this->handle)
 			throw new Exception($filename . __('can not open for output', 'woocommerce-order-export') );
 	}
