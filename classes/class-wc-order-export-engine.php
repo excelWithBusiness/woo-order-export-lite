@@ -91,15 +91,20 @@ class WC_Order_Export_Engine {
 
 	public static  function build_file( $settings, $make_mode, $output_mode , $offset=false, $limit=false, $filename='') {
 		global $wpdb;
-
 		if ( $output_mode == 'browser' ) {
-			$fname = 'php://output';
+			$filename = 'php://output';
 			while(@ob_end_clean()) { }; // remove ob_xx
-		} else
-			$fname = tempnam( "/tmp", $settings[ 'format' ] );
+		} else {
+			$filename = (!empty($filename) ? $filename : tempnam( "/tmp", $settings[ 'format' ] ));
+		}
+
 
 		//add_filter("woe_csv_output_filter",array($this,'testfilter'),10,2);
-		$formater = self::init_formater( $make_mode, $settings, $fname, $labels, $static_vals );
+		$formater = self::init_formater( $make_mode, $settings, $filename, $labels, $static_vals );
+		if($make_mode == 'finish') {
+			$formater->finish();
+			return $filename;
+		}	
 
 		//get IDs
 		$sql					 = WC_Order_Export_Data_Extractor::sql_get_order_ids( $settings );
@@ -114,14 +119,12 @@ class WC_Order_Export_Engine {
 			$limit = intval($limit );
 			$sql .= " LIMIT $offset,$limit";
 		}
+
+
 		$order_ids				 = $wpdb->get_col( $sql );
-		
-		//UNUSED  ajax tries to estimate # of records to export
-		if($make_mode == 'estimate') {
-			die(json_encode(array('total'=>count($order_ids))));
-		}
-		
-		
+		//$order_ids	= array(387);
+
+
 		// prepare for CSV
 		$csv_max[ 'coupons' ]	 = $csv_max[ 'products' ]	 = 1;
 		if ( $settings[ 'format' ] == 'CSV' ) {
@@ -147,16 +150,30 @@ class WC_Order_Export_Engine {
 
 		// 0 
 		$header = ($format == 'csv') ? self::make_header_csv( $labels, $csv_max ) : '';
-
-		$formater->start( $header );
+		
+		$options = array();
+		if($format == 'csv' AND @$settings['format_csv_populate_other_columns_product_rows'])
+			$options['populate_other_columns_product_rows'] = 1;
+		
+		if($make_mode != 'partial')
+			$formater->start( $header );
+		elseif($format =='json' AND $offset>0 )	
+			$formater->prev_added = true;
+		
+		if($make_mode == 'estimate') { //if estimate return total count
+			return $wpdb->get_var(str_replace( 'ID as order_id', 'COUNT(ID) as order_count', $sql ) );
+		}
+		
 		WC_Order_Export_Data_Extractor::prepare_for_export();
 		foreach ( $order_ids as $order_id ) {
-			$rows = WC_Order_Export_Data_Extractor::fetch_order_data( $order_id, $labels, $format, $filters_active, $csv_max, $export, $get_coupon_meta, $static_vals );
-			foreach ( $rows as $row )
+			$rows = WC_Order_Export_Data_Extractor::fetch_order_data( $order_id, $labels, $format, $filters_active, $csv_max, $export, $get_coupon_meta, $static_vals, $options );
+			foreach ( $rows as $row ) {
 				$formater->output( $row );
+			}
 		}
-		$formater->finish();
-		return $fname;
+		if($make_mode != 'partial')
+			$formater->finish();
+		return $filename;
 	}
 
 }

@@ -9,6 +9,8 @@ class WC_Order_Export_Admin {
     var $text_domain = 'woocommerce-order-export';
     var $settings_name_now = 'woocommerce-order-export-now';
     var $settings_name_cron = 'woocommerce-order-export-cron';
+    var $tempfile_prefix = 'woocommerce-order-file-';
+    var $step = 30;
     public static $formats = array('CSV', 'XML', 'JSON');
     public static $export_types = array('EMAIL', 'FTP', 'HTTP');
     public $url_plugin;
@@ -18,7 +20,7 @@ class WC_Order_Export_Admin {
         $this->url_plugin = dirname(plugin_dir_url(__FILE__)) . '/';
         $this->path_plugin = dirname(plugin_dir_path(__FILE__)) . '/';
         $this->path_views_default = dirname(plugin_dir_path(__FILE__)) . "/view/";
-
+		
         if (is_admin()) { // admin actions
             add_action('admin_menu', array($this, 'add_menu'));
             add_action('plugins_loaded', array($this, 'load_textdomain'));
@@ -184,7 +186,7 @@ class WC_Order_Export_Admin {
         return $arr;
     }
 
-    // AJAX part 
+    // AJAX part
     // calls ajax_action_XXXX
     public function ajax_gate() {
         $url = plugins_url('../', __FILE__);
@@ -221,7 +223,7 @@ class WC_Order_Export_Admin {
                 // for products & coupons
                 if (isset($in_sec['repeat'][$field]))
                     $opts["repeat"] = $in_sec['repeat'][$field];
-                //for orders	
+                //for orders
                 if (isset($in_sec['segment'][$field]))
                     $opts["segment"] = $in_sec['segment'][$field];
                 //for static fields
@@ -257,7 +259,7 @@ class WC_Order_Export_Admin {
         foreach ($products as $key => $product) {
             if ($product->photo_id) {
                 $photo = wp_get_attachment_image_src($product->photo_id, 'thumbnail');
-                $products[$key]->photo_url = $photo[0]; //debug 
+                $products[$key]->photo_url = $photo[0]; //debug
             }
         }
         echo json_encode($products);
@@ -273,7 +275,7 @@ class WC_Order_Export_Admin {
 
     public function ajax_action_test_destination() {
         $settings = $this->make_new_settings($_POST);
-        // use unsaved settings 
+        // use unsaved settings
         $file = WC_Order_Export_Engine::build_file($settings, 'preview', 'file');
         $result = WC_Order_Export_Engine::export($settings, $file);
         echo $result;
@@ -281,14 +283,12 @@ class WC_Order_Export_Admin {
 
     public function ajax_action_preview() {
         $settings = $this->make_new_settings($_POST);
-        // use unsaved settings 
+        // use unsaved settings
         WC_Order_Export_Engine::build_file($settings, 'preview', 'browser');
     }
 
-    public function ajax_action_export() {
-		$settings = $this->make_new_settings($_POST);
-        //$settings = $this->get_export_settings($_GET['mode'], $_GET['id']);
-        switch ($settings['format']) {
+    public function send_headers($format) {
+        switch ($format) {
             case 'CSV':
                 header('Content-type: text/csv');
                 header('Content-Disposition: attachment; filename="orders.csv"');
@@ -302,7 +302,51 @@ class WC_Order_Export_Admin {
                 header('Content-Disposition: attachment; filename="orders.xml"');
                 break;
         }
-        WC_Order_Export_Engine::build_file($settings, 'full', 'browser');
+    }
+
+    public function ajax_action_export_start() {
+        $settings = $this->make_new_settings($_POST);
+	    
+	    $filename = tempnam("/tmp","orders");
+	    file_put_contents( $filename, '' );
+        $total = WC_Order_Export_Engine::build_file($settings, 'estimate', 'file', 0, 0, $filename);
+        
+	    $file_id = current_time('timestamp');
+	    set_transient( $this->tempfile_prefix.$file_id, $filename, 60); 
+	    echo json_encode( array('total'=>$total , 'file_id'=>$file_id) );
+    }
+    
+    private function get_temp_file_name() {
+	    $filename = get_transient( $this->tempfile_prefix.$_REQUEST['file_id'] );
+	    if( $filename === false) {
+			echo json_encode(array('error' => __('Can not find exported file','woocommerce-order-export')));
+			die();
+	    }
+	    set_transient( $this->tempfile_prefix.$_REQUEST['file_id'], $filename, 60); 
+	    return $filename;
+    }
+
+    public function ajax_action_export_part() {
+		$settings = $this->make_new_settings($_POST);
+
+        WC_Order_Export_Engine::build_file($settings, 'partial', 'file', intval($_POST['start']), $this->step, $this->get_temp_file_name() );
+	    echo json_encode(array('start' => $_POST['start'] + $this->step));
+    }
+    
+    public function ajax_action_export_finish() {
+		$settings = $this->make_new_settings($_POST);
+	    WC_Order_Export_Engine::build_file($settings, 'finish', 'file', 0, 0, $this->get_temp_file_name() );
+    }
+    
+    public function ajax_action_export_download() {
+	    
+	    $format = basename($_GET[ 'format']);
+	    $filename = $this->get_temp_file_name();
+	    delete_transient( $this->tempfile_prefix.$_GET['file_id']); 
+	    
+	    $this->send_headers($format );
+	    readfile( $filename );
+	    unlink( $filename );
     }
 
     public function create_custom_schedules($schedules) {

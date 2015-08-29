@@ -15,8 +15,8 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 	var order_fields = <?php echo json_encode( $settings[ 'order_fields' ] ) ?>;
 	var order_products_fields = <?php echo json_encode( $settings[ 'order_product_fields' ] ) ?>;
 	var order_coupons_fields = <?php echo json_encode( $settings[ 'order_coupon_fields' ] ) ?>;
-//alert(order_fields)
 </script>
+
 
 <?php include 'modal-controls.php'; ?>
 <form method="post" id="export_job_settings">
@@ -142,10 +142,12 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 		</p>
 
 		<div id='CSV_options' style='display:none'><strong><?php _e( 'CSV options', 'woocommerce-order-export' ) ?></strong><br>
+			<input type=hidden name="settings[format_csv_add_utf8_bom]" value=0>
 			<input type=hidden name="settings[format_csv_display_column_names]" value=0>
-			<input type=hidden name="settings[format_csv_add_utf8]" value=0>
-			<input type=checkbox name="settings[format_csv_display_column_names]" value=1 <?php if ( $settings[ 'format_csv_display_column_names' ] ) echo 'checked'; ?>  >  <?php _e( 'Output column titles as first line', 'woocommerce-order-export' ) ?><br>
-			<input type=checkbox name="settings[format_csv_add_utf8_bom]" value=1 <?php if ( $settings[ 'format_csv_add_utf8_bom' ] ) echo 'checked'; ?>  > <?php _e( 'Output utf-8 BOM', 'woocommerce-order-export' ) ?><br>
+			<input type=hidden name="settings[format_csv_populate_other_columns_product_rows]" value=0>
+			<input type=checkbox name="settings[format_csv_add_utf8_bom]" value=1 <?php if ( @$settings[ 'format_csv_add_utf8_bom' ] ) echo 'checked'; ?>  > <?php _e( 'Output utf-8 BOM', 'woocommerce-order-export' ) ?><br>
+			<input type=checkbox name="settings[format_csv_display_column_names]" value=1 <?php if ( @$settings[ 'format_csv_display_column_names' ] ) echo 'checked'; ?>  >  <?php _e( 'Output column titles as first line', 'woocommerce-order-export' ) ?><br>
+			<input type=checkbox name="settings[format_csv_populate_other_columns_product_rows]" value=1 <?php if ( @$settings[ 'format_csv_populate_other_columns_product_rows' ] ) echo 'checked'; ?>  >  <?php _e( 'Populate other columns if products exported as rows', 'woocommerce-order-export' ) ?><br>
 			<?php _e( 'Field Delimiter', 'woocommerce-order-export' ) ?> <input type=text name="settings[format_csv_delimiter]" value='<?php echo $settings[ 'format_csv_delimiter' ] ?>' size=1>
 			<?php _e( 'Line Break', 'woocommerce-order-export' ) ?><input type=text name="settings[format_csv_linebreak]" value='<?php echo $settings[ 'format_csv_linebreak' ] ?>' size=4><br>
 <!--			<span class="my-hide-parent button-secondary">Hide</span>-->
@@ -306,6 +308,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 	<br>
 
 	<div class="my-block">
+		<div id=select2_warning style='display:none;color:red;font-size: 120%;'><?php _e( "The filters won't work correctly.<br>Another plugin uses outdated Select2.js", 'woocommerce-order-export' ) ?></div>
 		<span class="my-hide-next "><?php _e( 'Filter by product', 'woocommerce-order-export' ) ?>
 			<span class="ui-icon ui-icon-triangle-1-s my-icon-triangle"></span></span>
 		<div id="my-products" hidden="hidden">
@@ -333,13 +336,14 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 			</select>
 
 			<span class="wc-oe-header"><?php echo _e( 'Product Attributes', 'woocommerce-order-export' ) ?></span>
+			<br>
 			<select id="attributes" style="width: auto;">
 				<?php foreach ( WC_Order_Export_Data_Extractor::get_product_attributes() as $attr_id => $attr_name ) { ?>
 					<option><?php echo $attr_name; ?></option>
 				<?php } ?>
 			</select>
 			=
-			<input type=text id="text_attributes" value=''> <button id="add_attributes" class="button-secondary">+</button>
+			<input type=text id="text_attributes" value=''> <button id="add_attributes" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
 			<br>
 			<select id="attributes_check" multiple name="settings[product_attributes][]" style="width: 100%;">
 				<?php
@@ -360,6 +364,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 			<span class="ui-icon ui-icon-triangle-1-s my-icon-triangle"></span></span>
 		<div id="my-shipping" hidden="hidden">
 			<span class="wc-oe-header"><?php echo _e( 'Shipping locations', 'woocommerce-order-export' ) ?></span>
+			<br>
 			<select id="shipping_locations">
 				<option>City</option>
 				<option>State</option>
@@ -367,7 +372,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				<option>Country</option>
 			</select>
 			=
-			<input type=text id="text_locations" value=''> <button id="add_locations" class="button-secondary">+</button>
+			<input type=text id="text_locations" value=''> <button id="add_locations" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
 			<br>
 			<select id="locations_check" multiple name="settings[shipping_locations][]" style="width: 100%;">
 				<?php
@@ -448,14 +453,19 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 	<input type="submit" id='save-btn' class="button-primary" value="<?php _e( 'Save Settings', 'woocommerce-order-export' ) ?>" />
 	<?php if ( $show[ 'export_button' ] ) { ?>
 		<input type="submit" id='export-btn' class="button-secondary" value="<?php _e( 'Export', 'woocommerce-order-export' ) ?>" />
+	<div id="progress_div" style="display: none;">
+		<div id="progressBar"><div></div></div>
+	</div>
+	<div id="background"></div>
 	<?php } ?>
 </p>
 
 </form>
 <textarea rows=10 id='output_preview' style="overflow: auto;" wrap='off'></textarea> 
 <div id='output_preview_csv' style="overflow: auto;width:100%"></div>
-<form id='export_new_window_form' method=POST target=_blank>
-</form>
+
+<form id='export_new_window_form' method=POST target=_blank></form>
+<iframe id='export_new_window_frame' width=0 height=0 style='display:none'></iframe>
 
 
 
@@ -662,7 +672,15 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 	}
 
 	jQuery( document ).ready( function( $ ) {
-		select2_inits();
+	
+		try {
+			select2_inits();
+		}
+		catch(err) {
+			console.log(err.message);
+			jQuery('#select2_warning').show();
+		}
+		
 		bind_events();
 
 //		jQuery( '#' + output_format + '_options' ).show();
@@ -776,26 +794,90 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				);
 			return false;
 		} );
-		$( "#export-btn, #my-quick-export-btn" ).click( function() {
+// EXPORT FUNCTIONS
+		function get_data() {
 			var data = $( '#export_job_settings' ).serializeArray()
 			data.push( {name:'action',value:'order_exporter'});
-			data.push( {name:'method',value:'export'});
 			data.push( {name:'mode',value:mode});
 			data.push( {name:'id',value:job_id});
-			console.log(data);
+			return data;
+		}
+
+		function progress(percent, $element) {
+
+			if (percent == 0) {
+				$element.find('div').html(percent + "%&nbsp;").animate({width: 0}, 0);
+				waitingDialog();
+				jQuery('#progress_div').show();
+			}
+			else {
+				var progressBarWidth = percent * $element.width() / 100;
+				$element.find('div').html(percent + "%&nbsp;").animate({width: progressBarWidth}, 200);
+
+				if (percent >= 100) {
+					jQuery('#progress_div').hide();
+					closeWaitingDialog();
+				}
+			}
+		}
+
+		function get_all(start, percent, method) {
+
+			progress(parseInt(percent, 10), jQuery('#progressBar'));
+
+			if (percent < 100) {
+				data = get_data();
+				data.push( {name:'method',value:method});
+				data.push( {name:'start',value:start});
+				data.push( {name:'file_id',value:window.file_id});
+
+				jQuery.post(ajaxurl, data, function(response) {
+					get_all(response.start, (response.start / window.count) * 100, method)
+				}, 'json');
+			}
+			else {
+				data = get_data();
+				data.push( {name:'method',value:'export_finish'});
+				data.push( {name:'file_id',value:window.file_id});
+				jQuery.post(ajaxurl, data, function(response) {
+					$('#export_new_window_frame').attr("src",  ajaxurl+'?action=order_exporter&method=export_download&format='+output_format+'&file_id='+window.file_id);
+				}, 'json');
 			
-			$('#export_new_window_form').find("input").replaceWith( "" );
-			$('#export_new_window_form').attr("action",  ajaxurl);
-			$.each(data, function( index, obj ) {
-				if(obj.value != '') {
-					$('<input>').attr({
-						type: 'hidden',
-						name: obj.name,
-						value: obj.value
-					}).appendTo('#export_new_window_form');
-				}	
-			});
-			$('#export_new_window_form').submit();
+//			$('#export_new_window_form').find("input").replaceWith( "" );
+//			$('#export_new_window_form').attr("action",  ajaxurl);
+//			$.each(data, function( index, obj ) {
+//				if(obj.value != '') {
+//					$('<input>').attr({
+//						type: 'hidden',
+//						name: obj.name,
+//						value: obj.value
+//					}).appendTo('#export_new_window_form');
+//				}
+//			});
+//			$('#export_new_window_form').submit();
+			}
+		}
+
+		function waitingDialog() {
+			jQuery("#background").addClass("loading");
+		}
+		function closeWaitingDialog() {
+			jQuery("#background").removeClass("loading");
+		}
+// EXPORT FUNCTIONS END
+		$( "#export-btn, #my-quick-export-btn" ).click( function() {
+
+			data = get_data();
+			data.push( {name:'method',value:'export_start'});
+			
+			jQuery.post(ajaxurl, data, function(response) {
+				window.count = response['total'];
+				window.file_id = response['file_id'];
+				console.log(window.count);
+				if(window.count>0)
+					get_all(0, 0, 'export_part');
+			}, 'json');
+
 			return false;
 		} );
 		$( "#save-btn" ).click( function() {

@@ -644,7 +644,7 @@ class WC_Order_Export_Data_Extractor {
 		return $products;
 	}
 	
-	public static function fetch_order_data($order_id,$labels,$format,$filters_active,$csv_max,$export,$get_coupon_meta,$static_vals) {
+	public static function fetch_order_data($order_id,$labels,$format,$filters_active,$csv_max,$export,$get_coupon_meta,$static_vals,$options) {
 		global $wpdb;
 		
 		$extra_rows = array();
@@ -670,6 +670,8 @@ class WC_Order_Export_Data_Extractor {
 		if(isset($labels['order']['user_login']) OR isset($labels['order']['user_email'])) {
 			$user = !empty($order_meta['_customer_user'])? get_userdata($order_meta['_customer_user']) : false;
 		}
+		
+		$must_adjust_extra_rows = array();
 		
 		// fill as it must 
 		foreach($labels['order'] as $field=>$label) {
@@ -698,8 +700,14 @@ class WC_Order_Export_Data_Extractor {
 				$row[$field] = isset(self::$countries[ $order->shipping_country ]) ? self::$countries[ $order->shipping_country ] : $order->shipping_country;
 			elseif($field=='products' OR $field=='coupons') {
 				if($format=='csv') {
-					if($csv_max[$field]==1)
+					if($csv_max[$field]==1) {
+						//print_r(array_values($row));die();
+						// don't refill columns from parent row!
+						//echo count($row)."-".(count($row)+count($labels[$field])-1)."|";
+						if(@$options['populate_other_columns_product_rows'])
+							$must_adjust_extra_rows = array_merge($must_adjust_extra_rows, range(count($row), count($row)+count($labels[$field])-1 ) );
 						self::csv_process_multi_rows($row,$extra_rows,$data[$field],$labels[$field]);
+					}	
 					else
 						self::csv_process_multi_cols($row,$data[$field],$labels[$field],$csv_max[$field]);
 				}		
@@ -726,6 +734,23 @@ class WC_Order_Export_Data_Extractor {
 				$row[$field] = apply_filters("woe_get_order_{$format}_value_{$field}", $row[$field]);
 		}
 		
+		// fill child cells 
+		if($must_adjust_extra_rows AND $extra_rows) {
+			$must_adjust_extra_rows = array_unique($must_adjust_extra_rows);
+			$row_vals = array_values($row);
+			//print_r($must_adjust_extra_rows);//die();
+			//var_dump($row_vals );
+			foreach($extra_rows as $id=>$extra_row) 
+				foreach($row_vals as $pos=>$val) {
+					//add missed columns if no coupon in 2nd row
+					if(!isset($extra_rows[$id][$pos]))
+						$extra_rows[$id][$pos] = $val;
+					if(!in_array($pos, $must_adjust_extra_rows))
+						$extra_rows[$id][$pos] = $val;
+				}		
+		}
+		
+		
 		if($extra_rows) {
 			array_unshift($extra_rows,$row);
 		}	
@@ -737,7 +762,7 @@ class WC_Order_Export_Data_Extractor {
 	
 	public static function csv_process_multi_rows(&$row,&$extra_rows,$items,$labels) {
 		$row_size = count($row);
-		// must add one record 
+		// must add one record at least, if no coupons for example
 		if(empty($items)) {
 			foreach($labels as $field=>$label)
 				$row[] = "";
@@ -750,8 +775,9 @@ class WC_Order_Export_Data_Extractor {
 					$row[] = $data[$field];
 			}	
 			else {
-				if(!isset($extra_rows[$pos-1]))
+				if(!isset($extra_rows[$pos-1])) {
 					$extra_rows[$pos-1] = array_fill(0,$row_size,"");
+				}	
 				// if we adds 1-2 coupons after we added some products	, so $extra_rows ALREADY exists
 				while(count($extra_rows[$pos-1])!=$row_size)	
 					$extra_rows[$pos-1][] = "";

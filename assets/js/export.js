@@ -2,10 +2,32 @@
 function bind_events() {
 
     jQuery('#add_attributes').click(function() {
-        var val = jQuery('#attributes').val() + '=' + jQuery("#text_attributes").val();
-        jQuery('#attributes_check').append('<option selected="selected" value="' + val + '">' + val + '</option>');
-        jQuery('#attributes_check').select2();
-        jQuery("#text_attributes").val('');
+
+        var val = jQuery("#text_attributes").val();
+        var val2 = jQuery('#attributes').val();
+        if (val.length && val2.length) {
+            val =  val2 + '=' + val;
+
+            var f = true;
+            jQuery('#attributes_check').next().find('ul li').each(function() {
+               if (jQuery(this).attr('title') == val) {
+                   f = false;
+               }
+            });
+
+            if (f) {
+
+                jQuery('#attributes_check').append('<option selected="selected" value="' + val + '">' + val + '</option>');
+                jQuery('#attributes_check').select2();
+
+                jQuery('#attributes_check option').each(function() {
+                    jQuery('#attributes_check option[value=\"' + jQuery(this).val() + '\"]:not(:last)').remove();
+                });
+
+                jQuery("#text_attributes").val('');
+            }
+        }
+
         return false;
     });
     jQuery('#orders_add_custom_field').click(function() {
@@ -49,10 +71,31 @@ function bind_events() {
 /////////////END CUSTOM FIELDS BINDS
 
     jQuery('#add_locations').click(function() {
-        var val = jQuery('#shipping_locations').val() + '=' + jQuery("#text_locations").val();
-        jQuery('#locations_check').append('<option selected="selected" value="' + val + '">' + val + '</option>');
-        jQuery('#locations_check').select2();
-        jQuery("#text_locations").val('');
+
+        var val = jQuery("#text_locations").val();
+        var val2 = jQuery('#shipping_locations').val();
+        if (val.length && val2.length) {
+            val =  val2 + '=' + val;
+
+            var f = true;
+            jQuery('#locations_check').next().find('ul li').each(function() {
+                if (jQuery(this).attr('title') == val) {
+                    f = false;
+                }
+            });
+
+            if (f) {
+
+                jQuery('#locations_check').append('<option selected="selected" value="' + val + '">' + val + '</option>');
+                jQuery('#locations_check').select2();
+
+                jQuery('#locations_check option').each(function() {
+                    jQuery('#locations_check option[value=\"' + jQuery(this).val() + '\"]:not(:last)').remove();
+                });
+
+                jQuery("#text_locations").val('');
+            }
+        }
         return false;
     });
 }
@@ -141,9 +184,13 @@ function select2_inits()
 {
     jQuery("#statuses").select2();
     jQuery("#shipping_locations").select2();
-    jQuery("#attributes").select2();
+    jQuery("#attributes").select2({
+        width: 150
+    });
     jQuery("#attributes_check").select2();
-    jQuery("#shipping_locations").select2();
+    jQuery("#shipping_locations").select2({
+        width: 150
+    });
     jQuery("#locations_check").select2();
 
 

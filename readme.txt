@@ -1,16 +1,16 @@
 === Woo Orders Export Lite ===
 Contributors: algolplus
-Tags: woocommerce,export,order,csv,xml,woo export lite,export orders,orders export
+Tags: woocommerce,export,order,csv,xml,woo export lite,export orders,orders export,csv export,xml export
 Requires at least: 4.2.4
 Tested up to: 4.2.4
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Provides powerful filters to export Woocomerce orders to CSV/XML/Json file
+Ultimate tool to export Woocommerce orders to CSV/XML/Json 
 
 == Description ==
-The plugin exports sales from WooCommerce to CSV/XML/Json formats.
+The plugin exports orders from WooCommerce to CSV/XML/Json formats.
 
 You could filter orders by many parameters, not only by order date or status.
 
@@ -61,3 +61,12 @@ First release.
 
 = 1.0.1 =
 Added Russian language
+
+= 1.0.2 =
+Added Progress bar
+Added new csv option "Populate other columns if products exported as rows"
+Save last file in folder "output"
+
+= 1.0.3 =
+Partially support outdated Select2 (some plugins still use version 3.5.x)
+Fixed problem with empty file( preview was ok)
