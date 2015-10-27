@@ -141,6 +141,12 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 			<?php } ?>
 		</p>
 
+		<div id='XLS_options' style='display:none'><strong><?php _e( 'XLS options', 'woocommerce-order-export' ) ?></strong><br>
+			<input type=hidden name="settings[format_xls_display_column_names]" value=0>
+			<input type=hidden name="settings[format_xls_populate_other_columns_product_rows]" value=0>
+			<input type=checkbox name="settings[format_xls_display_column_names]" value=1 <?php if ( @$settings[ 'format_xls_display_column_names' ] ) echo 'checked'; ?>  >  <?php _e( 'Output column titles as first line', 'woocommerce-order-export' ) ?><br>
+			<input type=checkbox name="settings[format_xls_populate_other_columns_product_rows]" value=1 <?php if ( @$settings[ 'format_xls_populate_other_columns_product_rows' ] ) echo 'checked'; ?>  >  <?php _e( 'Populate other columns if products exported as rows', 'woocommerce-order-export' ) ?><br>
+		</div>
 		<div id='CSV_options' style='display:none'><strong><?php _e( 'CSV options', 'woocommerce-order-export' ) ?></strong><br>
 			<input type=hidden name="settings[format_csv_add_utf8_bom]" value=0>
 			<input type=hidden name="settings[format_csv_display_column_names]" value=0>
@@ -150,14 +156,12 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 			<input type=checkbox name="settings[format_csv_populate_other_columns_product_rows]" value=1 <?php if ( @$settings[ 'format_csv_populate_other_columns_product_rows' ] ) echo 'checked'; ?>  >  <?php _e( 'Populate other columns if products exported as rows', 'woocommerce-order-export' ) ?><br>
 			<?php _e( 'Field Delimiter', 'woocommerce-order-export' ) ?> <input type=text name="settings[format_csv_delimiter]" value='<?php echo $settings[ 'format_csv_delimiter' ] ?>' size=1>
 			<?php _e( 'Line Break', 'woocommerce-order-export' ) ?><input type=text name="settings[format_csv_linebreak]" value='<?php echo $settings[ 'format_csv_linebreak' ] ?>' size=4><br>
-<!--			<span class="my-hide-parent button-secondary">Hide</span>-->
 		</div>
 		<div id='XML_options' style='display:none'><strong><?php _e( 'XML options', 'woocommerce-order-export' ) ?></strong><br>
 			<span class="xml-title"><?php _e( 'Root tag', 'woocommerce-order-export' ) ?></span><input type=text name="settings[format_xml_root_tag]" value='<?php echo $settings[ 'format_xml_root_tag' ] ?>'><br>
 			<span class="xml-title"><?php _e( 'Order tag', 'woocommerce-order-export' ) ?></span><input type=text name="settings[format_xml_order_tag]" value='<?php echo $settings[ 'format_xml_order_tag' ] ?>'><br>
 			<span class="xml-title"><?php _e( 'Product tag', 'woocommerce-order-export' ) ?></span><input type=text name="settings[format_xml_product_tag]" value='<?php echo $settings[ 'format_xml_product_tag' ] ?>'><br>
 			<span class="xml-title"><?php _e( 'Coupon tag', 'woocommerce-order-export' ) ?></span><input type=text name="settings[format_xml_coupon_tag]" value='<?php echo $settings[ 'format_xml_coupon_tag' ] ?>'><br>
-<!--			<span class="my-hide-parent button-secondary">Hide</span>-->
 		</div>
 
 		<div id='JSON_options' style='display:none'></div>
@@ -343,7 +347,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				<?php } ?>
 			</select>
 			=
-			<input type=text id="text_attributes" value=''> <button id="add_attributes" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
+			<button id="add_attributes" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
 			<br>
 			<select id="attributes_check" multiple name="settings[product_attributes][]" style="width: 100%;">
 				<?php
@@ -353,6 +357,26 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 						<option selected value="<?php echo $prod; ?>"> <?php echo $prod; ?></option>
 					<?php } ?>
 			</select>
+			
+			<span class="wc-oe-header"><?php echo _e( 'Product Taxonomies', 'woocommerce-order-export' ) ?></span>
+			<br>
+			<select id="taxonomies" style="width: auto;">
+				<?php foreach ( WC_Order_Export_Data_Extractor::get_product_taxonomies() as $attr_id => $attr_name ) { ?>
+					<option><?php echo $attr_name; ?></option>
+				<?php } ?>
+			</select>
+			=
+			<input type=text id="text_taxonomies" value=''> <button id="add_taxonomies" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
+			<br>
+			<select id="taxonomies_check" multiple name="settings[product_taxonomies][]" style="width: 100%;">
+				<?php
+				if ( $settings[ 'product_taxonomies' ] )
+					foreach ( $settings[ 'product_taxonomies' ] as $prod ) {
+						?>
+						<option selected value="<?php echo $prod; ?>"> <?php echo $prod; ?></option>
+					<?php } ?>
+			</select>
+			
 		</div>
 	</div>
 
@@ -372,7 +396,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				<option>Country</option>
 			</select>
 			=
-			<input type=text id="text_locations" value=''> <button id="add_locations" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
+			<button id="add_locations" class="button-secondary"><span class="dashicons dashicons-plus-alt"></span></button>
 			<br>
 			<select id="locations_check" multiple name="settings[shipping_locations][]" style="width: 100%;">
 				<?php
@@ -569,7 +593,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 		var html = '';
 		jQuery.each( window['order_fields'], function( index, value ) {
 			var checked = ( value.checked == 1 ) ? 'checked' : '';
-			var colname = (format=='CSV') ? value.label: ( format=='XML' ? to_xml_tags(index) :index);
+			var colname = (format=='XLS' || format=='CSV') ? value.colname: ( format=='XML' ? to_xml_tags(index) :index);
 			if ( index == 'products' || index == 'coupons' ) {
 				var sel_rows = ( value.repeat == 'rows' ) ? 'checked' : '';
 				var sel_cols = ( value.repeat == 'columns' ) ? 'checked' : '';
@@ -586,7 +610,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
                                                         </div>\
                                                         <div class="mapping_col_2">' + value.label + '</div>\
                                                         <div class="mapping_col_3">';
-				if ( format == 'CSV' )
+				if ( format == 'XLS' || format=='CSV' )
 					row += 'Add <input type=radio name=orders[repeat][' + index + '] value="columns" ' + sel_cols + ' >as columns  \
                                                                                                                                                                         <input type=radio name=orders[repeat][' + index + '] value="rows" ' + sel_rows + ' >as rows\
                                                                                                                 '
@@ -635,7 +659,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 
 		var modal = "<div id='sort_" + index_p + "'>";
 		jQuery.each( window['order_' + index_p + '_fields'], function( index, value ) {
-			var colname = (format=='CSV') ? value.label: ( format=='XML' ? to_xml_tags(index) :index);
+			var colname = (format=='XLS' || format=='CSV') ? value.label: ( format=='XML' ? to_xml_tags(index) :index);
 			var checked = ( value.checked == 1 ) ? 'checked' : '';
 			var row = '<li class="mapping_row segment_modal_' + index + '">\
                                                         <div class="mapping_col_1">\
@@ -682,7 +706,8 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 		}
 		
 		bind_events();
-
+		jQuery('#attributes').change();
+		jQuery('#shipping_locations').change();
 //		jQuery( '#' + output_format + '_options' ).show();
 
 		//jQuery('#fields').toggle(); //debug 
@@ -785,7 +810,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 			data = data + "&action=order_exporter&method=preview&mode=" + mode + "&id=" + job_id;
 			$.post( ajaxurl, data, function( response ) {
 				var id = 'output_preview';
-				if(output_format =='CSV')
+				if(output_format =='XLS' || output_format=='CSV')
 					id = 'output_preview_csv';
 				jQuery( '#'+id ).html( response );
 				jQuery( '#'+id ).show();
@@ -890,7 +915,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 				else {
 					document.location = '<?php echo admin_url( 'admin.php?page=wc-order-export&tab=export&save=y' ) ?>';
 				}
-			}, "html" );
+			}, "json" );
 			return false;
 		} );
 

@@ -77,14 +77,19 @@ class WC_Order_Export_Engine {
 	private static function make_header_csv( $labels, $csv_max ) {
 		$header = array();
 		foreach ( $labels[ 'order' ] as $field => $label ) {
+			$field_header = array();
 			if ( $field == 'products' OR $field == 'coupons' ) {
 				for ( $i = 1; $i <= $csv_max[ $field ]; $i++ ) {
 					foreach ( $labels[ $field ] as $field2 => $label2 ) {
-						$header[] = $label2 . ($csv_max[ $field ] > 1 ? ' #' . $i : '');
+						$field_header[] = $label2 . ($csv_max[ $field ] > 1 ? ' #' . $i : '');
 					}
 				}
-			} else
-				$header[] = $label;
+			}
+			do_action( 'woocommerce_order_export_add_csv_headers', $field_header, $field );
+			if ( empty( $field_header ) ) {
+				$field_header[] = $label;
+			}
+			$header = array_merge( $header, $field_header );
 		}
 		return $header;
 	}
@@ -101,8 +106,11 @@ class WC_Order_Export_Engine {
 
 		//add_filter("woe_csv_output_filter",array($this,'testfilter'),10,2);
 		$formater = self::init_formater( $make_mode, $settings, $filename, $labels, $static_vals );
+		$format = strtolower( $settings[ 'format' ] );
+		
 		if($make_mode == 'finish') {
-			$formater->finish();
+			if($format !='xls')
+				$formater->finish();
 			return $filename;
 		}	
 
@@ -110,7 +118,7 @@ class WC_Order_Export_Engine {
 		$sql					 = WC_Order_Export_Data_Extractor::sql_get_order_ids( $settings );
 		if ( $make_mode == 'preview' )
 			$sql .= " ORDER BY order_id DESC LIMIT 1";
-		elseif ( $make_mode == 'full' )
+		elseif ( $make_mode != 'estimate' )
 			$sql .= " ORDER BY order_id ASC";
 		
 		//UNUSED ajax get partial orders
@@ -125,17 +133,16 @@ class WC_Order_Export_Engine {
 		//$order_ids	= array(387);
 
 
-		// prepare for CSV
+		// prepare for XLS/CSV
 		$csv_max[ 'coupons' ]	 = $csv_max[ 'products' ]	 = 1;
-		if ( $settings[ 'format' ] == 'CSV' ) {
-			if ( $settings[ 'order_fields' ][ 'products' ][ 'repeat' ] == 'columns' )
+		if ( $format == 'xls' OR $format == 'csv') {
+			if ( @$settings[ 'order_fields' ][ 'products' ][ 'repeat' ] == 'columns' )
 				$csv_max[ 'products' ]	 = WC_Order_Export_Data_Extractor::get_max_order_items( "line_item", $order_ids );
-			if ( $settings[ 'order_fields' ][ 'coupons' ][ 'repeat' ] == 'columns' )
+			if ( @$settings[ 'order_fields' ][ 'coupons' ][ 'repeat' ] == 'columns' )
 				$csv_max[ 'coupons' ]	 = WC_Order_Export_Data_Extractor::get_max_order_items( "coupon", $order_ids );
 		}
 
 		// try to optimize calls
-		$format			 = strtolower( $settings[ 'format' ] );
 		$filters_active	 = array(
 			'order'		 => self::check_filters( $settings[ 'order_fields'  ], $format, 'order' ),
 			'products'	 => self::check_filters( $settings[ 'order_product_fields'  ], $format, 'order_product' ),
@@ -149,10 +156,10 @@ class WC_Order_Export_Engine {
 
 
 		// 0 
-		$header = ($format == 'csv') ? self::make_header_csv( $labels, $csv_max ) : '';
+		$header = ($format == 'xls' OR $format == 'csv') ? self::make_header_csv( $labels, $csv_max ) : '';
 		
 		$options = array();
-		if($format == 'csv' AND @$settings['format_csv_populate_other_columns_product_rows'])
+		if( $format == 'xls' AND @$settings['format_xls_populate_other_columns_product_rows']  OR $format == 'csv' AND @$settings['format_csv_populate_other_columns_product_rows'] )
 			$options['populate_other_columns_product_rows'] = 1;
 		
 		if($make_mode != 'partial')
@@ -171,7 +178,7 @@ class WC_Order_Export_Engine {
 				$formater->output( $row );
 			}
 		}
-		if($make_mode != 'partial')
+		if( $make_mode != 'partial' OR $format=='xls' )
 			$formater->finish();
 		return $filename;
 	}

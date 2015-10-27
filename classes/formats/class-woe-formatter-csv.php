@@ -1,5 +1,4 @@
 <?php
-error_reporting(E_ALL);
 if ( !defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
@@ -19,7 +18,7 @@ class WOE_Formatter_Csv extends WOE_Formatter {
 		// register the filter 
 		stream_filter_register('WOE_Formatter_Csv_crlf', 'WOE_Formatter_Csv_crlf_filter');
 		// attach to stream 
-		//stream_filter_append($this->handle, 'WOE_Formatter_Csv_crlf');
+//		stream_filter_append($this->handle, 'WOE_Formatter_Csv_crlf');
 		
 		if($this->settings['display_column_names'] AND $data) {
 			if($this->mode=='preview')

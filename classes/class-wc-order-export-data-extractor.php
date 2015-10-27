@@ -108,6 +108,25 @@ class WC_Order_Export_Data_Extractor {
 		}
 		asort($attrs);
 		return apply_filters('woe_get_product_attributes', $attrs); 
+	}	
+	
+	public static function get_product_taxonomies() {
+		global $wpdb;
+		
+		$attrs = array();
+		
+		// WP internal table, take all taxonomies for products
+		$wpdb->show_errors(true);
+		$wp_fields  = $wpdb->get_col("SELECT DISTINCT taxonomy FROM {$wpdb->term_relationships} 
+					JOIN {$wpdb->term_taxonomy} ON {$wpdb->term_taxonomy}.term_taxonomy_id = {$wpdb->term_relationships}.term_taxonomy_id
+					WHERE {$wpdb->term_relationships}.object_id IN  (SELECT DISTINCT ID FROM {$wpdb->posts} WHERE post_type = 'product' OR post_type='product_variation')");
+		foreach($wp_fields as $attr) {
+			if($attr == 'product_cat' OR substr($attr,0,3)=='pa_') // skip category and attributes from WC table
+				continue;
+			$attrs[$attr] = $attr;
+		}
+		asort($attrs);
+		return apply_filters('woe_get_product_taxonomies', $attrs); 
 	}			
 	
 	public static function get_order_product_fields($format) {
@@ -303,7 +322,29 @@ class WC_Order_Export_Data_Extractor {
 		global $wpdb;
 		
 		// deep level !
-		$product_category_where = '';
+		
+
+		//custom taxonomies
+		$taxonomy_where = "";
+		if($settings['product_taxonomies']) {
+			$attrs = self::get_product_taxonomies();
+			$names2fields = array_flip($attrs);
+			$filters = self::parse_pairs($settings['product_taxonomies'], $attrs );
+			//print_r($filters );die();
+			foreach($filters as $label=>$values) {
+				$field = $names2fields[$label];
+				$values = self::sql_subset($values);
+				if($values) {
+					$taxonomy_where_object_id = $taxonomy_where? "AND object_id IN ($taxonomy_where)" : "";
+					$taxonomy_where = "(SELECT  object_id FROM {$wpdb->term_relationships} AS {$field}_rel 
+						INNER JOIN {$wpdb->term_taxonomy} AS {$field}_cat ON {$field}_cat.term_taxonomy_id = {$field}_rel.term_taxonomy_id
+						WHERE {$field}_cat.term_id IN (SELECT term_id FROM {$wpdb->terms} WHERE name IN($values) ) $taxonomy_where_object_id 
+					)";
+				}	
+			}
+		}
+
+		$product_category_where = $taxonomy_where ;
 		if($settings['product_categories']) {
 			$cat_ids = array(0);
 			foreach($settings['product_categories'] as $cat_id) {
@@ -312,11 +353,13 @@ class WC_Order_Export_Data_Extractor {
 					$cat_ids[] = $child_id;
 			}
 			$cat_ids = join(',',$cat_ids);
-			$product_category_where = "(SELECT object_id FROM {$wpdb->term_relationships} AS product_in_cat 
+			$taxonomy_where_object_id = $taxonomy_where? "AND object_id IN ($taxonomy_where)" : "";
+			$product_category_where = "(SELECT  DISTINCT object_id FROM {$wpdb->term_relationships} AS product_in_cat 
 						LEFT JOIN {$wpdb->term_taxonomy} AS product_category ON product_category.term_taxonomy_id = product_in_cat.term_taxonomy_id
-						WHERE product_category.term_id IN ($cat_ids)
+						WHERE product_category.term_id IN ($cat_ids) $taxonomy_where_object_id 
 					)";
 		}
+		
 		
 		// deep level still
 		$product_where = '';
@@ -388,6 +431,7 @@ class WC_Order_Export_Data_Extractor {
 				$order_meta_where = " AND ". $order_meta_where ;
 			$left_join_order_meta  = join("  ",$left_join_order_meta );
 		}
+		
 		
 		//top_level
 		$where = array(1);
@@ -675,9 +719,15 @@ class WC_Order_Export_Data_Extractor {
 		
 		// fill as it must 
 		foreach($labels['order'] as $field=>$label) {
-			if(isset($order_meta[$field]))
-				$row[$field] = $order_meta[$field];
-			elseif(isset($order_meta["_".$field]))// or hidden field 
+			if(isset($order_meta[$field])) {
+				$field_data = array();
+				do_action( 'woocommerce_order_export_add_field_data', $field_data, $order_meta[ $field ], $field );
+				if ( empty( $field_data ) ) {
+					$field_data[ $field ] = $order_meta[ $field ];
+				}
+				$row = array_merge( $row, $field_data );
+			}
+			elseif(isset($order_meta["_".$field]))// or hidden field
 				$row[$field] = $order_meta["_".$field];
 			elseif($field=='order_id')
 				$row['order_id'] = $order_id;
@@ -699,7 +749,7 @@ class WC_Order_Export_Data_Extractor {
 			elseif($field=='shipping_country_full')
 				$row[$field] = isset(self::$countries[ $order->shipping_country ]) ? self::$countries[ $order->shipping_country ] : $order->shipping_country;
 			elseif($field=='products' OR $field=='coupons') {
-				if($format=='csv') {
+				if($format=='xls' OR $format=='csv') {
 					if($csv_max[$field]==1) {
 						//print_r(array_values($row));die();
 						// don't refill columns from parent row!

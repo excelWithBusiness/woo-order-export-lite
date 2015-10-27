@@ -1,16 +1,16 @@
 === Woo Orders Export Lite ===
 Contributors: algolplus
-Tags: woocommerce,export,order,csv,xml,woo export lite,export orders,orders export,csv export,xml export
+Tags: woocommerce,export,order,xls,csv,xml,woo export lite,export orders,orders export,csv export,xml export,xls export
 Requires at least: 4.2.4
-Tested up to: 4.2.4
+Tested up to: 4.3
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Ultimate tool to export Woocommerce orders to CSV/XML/Json 
+Ultimate tool to export Woocommerce orders to Excel/CSV/XML/Json
 
 == Description ==
-The plugin exports orders from WooCommerce to CSV/XML/Json formats.
+Review screenshots to see its power.
 
 You could filter orders by many parameters, not only by order date or status.
 
@@ -57,21 +57,32 @@ Yes, you could email a request to algol.plus@gmail.com. We intensively develop t
 
 == Changelog ==
 
-= 1.0.0 =
-First release.
+= 1.1.0 =
+* Order exported records by ID
+* Corrected extension for xlsx files
+* Fixed bug for "Fields Setup"
 
-= 1.0.1 =
-Added Russian language
+= 1.0.6 =
+* Attribute filter shows attribute values.
+* Shipping filter shows values too.
 
-= 1.0.2 =
-Added Progress bar
+= 1.0.5 =
+* Filter by product taxonomies
 
-Added new csv option "Populate other columns if products exported as rows"
-
-Save last file in folder "output"
+= 1.0.4 =
+* Export to XLS
 
 = 1.0.3 =
+* Partially support outdated Select2 (some plugins still use version 3.5.x)
+* Fixed problem with empty file( preview was fine)
 
-Partially support outdated Select2 (some plugins still use version 3.5.x)
+= 1.0.2 =
+* Added Progress bar
+* Added new csv option "Populate other columns if products exported as rows"
 
-Fixed problem with empty file( preview was ok)
+= 1.0.1 =
+* Added Russian language
+
+
+= 1.0.0 =
+* First release.

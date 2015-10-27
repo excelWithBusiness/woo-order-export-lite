@@ -1,11 +1,35 @@
 
 function bind_events() {
 
+    jQuery('#attributes').change(function() {
+
+        jQuery('#text_attributes').attr('disabled', 'disabled');
+        var data = {
+            'attr' : jQuery(this).val(),
+            method: "get_products_attributes_values",
+            action: "order_exporter"
+        };
+
+        jQuery.post(ajaxurl, data, function(response) {
+            jQuery('#text_attributes').remove();
+            if (response) {
+                var options = '';
+                jQuery.each(response, function(index, value) {
+                    options += '<option>' + value + '</option>';
+                });
+                jQuery('<select id="text_attributes" style="margin-top: 0px;margin-right: 6px;">' + options + '</select>').insertBefore(jQuery('#add_attributes'));
+            }
+            else {
+                jQuery('<input type="text" id="text_attributes" style="margin-right: 8px;">').insertBefore(jQuery('#add_attributes'));
+            }
+        }, 'json');
+    });
+
     jQuery('#add_attributes').click(function() {
 
         var val = jQuery("#text_attributes").val();
         var val2 = jQuery('#attributes').val();
-        if (val.length && val2.length) {
+        if (val != null && val2 != null && val.length && val2.length) {
             val =  val2 + '=' + val;
 
             var f = true;
@@ -24,12 +48,43 @@ function bind_events() {
                     jQuery('#attributes_check option[value=\"' + jQuery(this).val() + '\"]:not(:last)').remove();
                 });
 
-                jQuery("#text_attributes").val('');
+                jQuery("input#text_attributes").val('');
             }
         }
 
         return false;
     });
+
+    jQuery('#add_taxonomies').click(function() {
+
+        var val = jQuery("#text_taxonomies").val();
+        var val2 = jQuery('#taxonomies').val();
+        if (val != null && val2 != null && val.length && val2.length) {
+            val =  val2 + '=' + val;
+
+            var f = true;
+            jQuery('#taxonomies_check').next().find('ul li').each(function() {
+               if (jQuery(this).attr('title') == val) {
+                   f = false;
+               }
+            });
+
+            if (f) {
+
+                jQuery('#taxonomies_check').append('<option selected="selected" value="' + val + '">' + val + '</option>');
+                jQuery('#taxonomies_check').select2();
+
+                jQuery('#taxonomies_check option').each(function() {
+                    jQuery('#taxonomies_check option[value=\"' + jQuery(this).val() + '\"]:not(:last)').remove();
+                });
+
+                jQuery("#text_taxonomies").val('');
+            }
+        }
+
+        return false;
+    });
+	
     jQuery('#orders_add_custom_field').click(function() {
         jQuery("#fields_control > div").hide();
         jQuery("#fields_control .div_custom").show();
@@ -70,11 +125,35 @@ function bind_events() {
 
 /////////////END CUSTOM FIELDS BINDS
 
+    jQuery('#shipping_locations').change(function() {
+
+        jQuery('#text_locations').attr('disabled', 'disabled');
+        var data = {
+            'item' : jQuery(this).val(),
+            method: "get_products_shipping_values",
+            action: "order_exporter"
+        };
+
+        jQuery.post(ajaxurl, data, function(response) {
+            jQuery('#text_locations').remove();
+            if (response) {
+                var options = '';
+                jQuery.each(response, function(index, value) {
+                    options += '<option>' + value + '</option>';
+                });
+                jQuery('<select id="text_locations" style="margin-top: 0px;margin-right: 6px;">' + options + '</select>').insertBefore(jQuery('#add_locations'));
+            }
+            else {
+                jQuery('<input type="text" id="text_locations" style="margin-right: 8px;">').insertBefore(jQuery('#add_locations'));
+            }
+        }, 'json');
+    });
+
     jQuery('#add_locations').click(function() {
 
         var val = jQuery("#text_locations").val();
         var val2 = jQuery('#shipping_locations').val();
-        if (val.length && val2.length) {
+        if (val != null && val2 != null && val.length && val2.length) {
             val =  val2 + '=' + val;
 
             var f = true;
@@ -93,7 +172,7 @@ function bind_events() {
                     jQuery('#locations_check option[value=\"' + jQuery(this).val() + '\"]:not(:last)').remove();
                 });
 
-                jQuery("#text_locations").val('');
+                jQuery("input#text_locations").val('');
             }
         }
         return false;
@@ -188,6 +267,12 @@ function select2_inits()
         width: 150
     });
     jQuery("#attributes_check").select2();
+	
+    jQuery("#taxonomies").select2({
+        width: 150
+    });
+    jQuery("#taxonomies_check").select2();
+	
     jQuery("#shipping_locations").select2({
         width: 150
     });

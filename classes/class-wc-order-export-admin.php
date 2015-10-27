@@ -11,7 +11,7 @@ class WC_Order_Export_Admin {
     var $settings_name_cron = 'woocommerce-order-export-cron';
     var $tempfile_prefix = 'woocommerce-order-file-';
     var $step = 30;
-    public static $formats = array('CSV', 'XML', 'JSON');
+    public static $formats = array('XLS', 'CSV', 'XML', 'JSON');
     public static $export_types = array('EMAIL', 'FTP', 'HTTP');
     public $url_plugin;
     public $path_plugin;
@@ -20,7 +20,7 @@ class WC_Order_Export_Admin {
         $this->url_plugin = dirname(plugin_dir_url(__FILE__)) . '/';
         $this->path_plugin = dirname(plugin_dir_path(__FILE__)) . '/';
         $this->path_views_default = dirname(plugin_dir_path(__FILE__)) . "/view/";
-		
+
         if (is_admin()) { // admin actions
             add_action('admin_menu', array($this, 'add_menu'));
             add_action('plugins_loaded', array($this, 'load_textdomain'));
@@ -42,7 +42,7 @@ class WC_Order_Export_Admin {
     }
 
     function load_textdomain() {
-        load_plugin_textdomain($this->text_domain, false, dirname( plugin_basename( __FILE__ ) ) . '/../i18n/languages');
+        load_plugin_textdomain($this->text_domain, false, dirname(plugin_basename(__FILE__)) . '/../i18n/languages');
     }
 
     public function add_menu() {
@@ -109,32 +109,34 @@ class WC_Order_Export_Admin {
                 $settings = array();
         }
 
-        $defaults = array('statuses' => array(), 'from_date' => '', 'to_date' => '', 'shipping_locations' => array(), 'product_categories' => array(), 'products' => array(), 'product_attributes' => array(), 'format' => 'CSV',
-            'format_csv_delimiter' => ',', 'format_csv_linebreak' => '\r\n', 'format_csv_display_column_names' => 1, 'format_csv_add_utf8_bom' => 0,
+        $defaults = array('statuses' => array(), 'from_date' => '', 'to_date' => '', 'shipping_locations' => array(), 'product_categories' => array(), 'products' => array(), 'product_attributes' => array(), 'product_taxonomies' => array(),
+            'format' => 'XLS',
+            'format_xls_display_column_names' => 1, 'format_xls_populate_other_columns_product_rows' => 0,
+            'format_csv_delimiter' => ',', 'format_csv_linebreak' => '\r\n', 'format_csv_display_column_names' => 1, 'format_csv_add_utf8_bom' => 0, 'format_csv_populate_other_columns_product_rows' => 0,
             'format_xml_root_tag' => 'Orders', 'format_xml_order_tag' => 'Order', 'format_xml_product_tag' => 'Product', 'format_xml_coupon_tag' => 'Coupon',
         );
 
         if (!isset($settings['format']))
-            $settings['format'] = 'CSV';
+            $settings['format'] = 'XLS';
 
         if (!isset($settings['order_fields']))
             $settings['order_fields'] = array();
-        $settings['order_fields'] = array_merge(WC_Order_Export_Data_Extractor::get_order_fields($settings['format']), $settings['order_fields']);
 
+        $settings['order_fields'] = $settings['order_fields'] + WC_Order_Export_Data_Extractor::get_order_fields($settings['format']);
         if (!isset($settings['order_product_fields']))
             $settings['order_product_fields'] = array();
-        $settings['order_product_fields'] = array_merge(WC_Order_Export_Data_Extractor::get_order_product_fields($settings['format']), $settings['order_product_fields']);
+        $settings['order_product_fields'] = $settings['order_product_fields'] + WC_Order_Export_Data_Extractor::get_order_product_fields($settings['format']);
 
         if (!isset($settings['order_coupon_fields']))
             $settings['order_coupon_fields'] = array();
-        $settings['order_coupon_fields'] = array_merge(WC_Order_Export_Data_Extractor::get_order_coupon_fields($settings['format']), $settings['order_coupon_fields']);
+        $settings['order_coupon_fields'] = $settings['order_coupon_fields'] + WC_Order_Export_Data_Extractor::get_order_coupon_fields($settings['format']);
         return array_merge($defaults, $settings);
     }
 
     public function save_export_settings($mode, $id, $options) {
 
         if ($mode == 'now') {
-            update_option($this->settings_name_now, $options, 'no');
+            update_option($this->settings_name_now, $options);
         } elseif ($mode == 'cron') {
             $all_jobs = get_option($this->settings_name_cron, array());
             if ($id)
@@ -143,7 +145,7 @@ class WC_Order_Export_Admin {
                 $all_jobs[] = $options; // new job
 
             wp_clear_scheduled_hook('wc_export_cron_job', array('job_id' => intval($id)));
-            update_option($this->settings_name_cron, $all_jobs, 'no');
+            update_option($this->settings_name_cron, $all_jobs);
         }
         return $id;
     }
@@ -203,7 +205,7 @@ class WC_Order_Export_Admin {
         $new_settings = $in['settings'];
 
         // UI don't pass empty multiselects
-        $multiselects = array('statuses', 'product_categories', 'products', 'shipping_locations', 'product_attributes');
+        $multiselects = array('statuses', 'product_categories', 'products', 'shipping_locations', 'product_attributes', 'product_taxonomies');
         foreach ($multiselects as $m_select) {
             if (!isset($new_settings[$m_select]))
                 $new_settings[$m_select] = array();
@@ -218,19 +220,22 @@ class WC_Order_Export_Admin {
         foreach ($sections as $section => $fieldset) {
             $new_order_fields = array();
             $in_sec = $in[$section];
-            foreach ($in_sec['colname'] as $field => $colname) {
-                $opts = array("checked" => $in_sec['exported'][$field], "colname" => $colname, "label" => $in_sec['label'][$field]);
-                // for products & coupons
-                if (isset($in_sec['repeat'][$field]))
-                    $opts["repeat"] = $in_sec['repeat'][$field];
-                //for orders
-                if (isset($in_sec['segment'][$field]))
-                    $opts["segment"] = $in_sec['segment'][$field];
-                //for static fields
-                if (isset($in_sec['value'][$field]))
-                    $opts["value"] = $in_sec['value'][$field];
-                $new_order_fields[$field] = $opts;
-            }
+
+            if ($in_sec['colname'])
+                foreach ($in_sec['colname'] as $field => $colname) {
+                    $opts = array("checked" => $in_sec['exported'][$field], "colname" => $colname, "label" => $in_sec['label'][$field]);
+                    // for products & coupons
+                    if (isset($in_sec['repeat'][$field]))
+                        $opts["repeat"] = $in_sec['repeat'][$field];
+                    //for orders
+                    if (isset($in_sec['segment'][$field]))
+                        $opts["segment"] = $in_sec['segment'][$field];
+                    //for static fields
+                    if (isset($in_sec['value'][$field]))
+                        $opts["value"] = $in_sec['value'][$field];
+                    $new_order_fields[$field] = $opts;
+                }
+
             $settings[$fieldset] = $new_order_fields;
         }
         return $settings;
@@ -238,8 +243,9 @@ class WC_Order_Export_Admin {
 
     public function ajax_action_save_settings() {
         $settings = $this->make_new_settings($_POST);
+        //print_r(array($_POST['mode'], $_POST['id'], $settings));
         $this->save_export_settings($_POST['mode'], $_POST['id'], $settings);
-        _e("Settings Updated", 'woocommerce-order-export');
+        //_e("Settings Updated", 'woocommerce-order-export');
     }
 
     public function ajax_action_get_products() {
@@ -287,8 +293,56 @@ class WC_Order_Export_Admin {
         WC_Order_Export_Engine::build_file($settings, 'preview', 'browser');
     }
 
+    public function ajax_action_get_products_attributes_values() {
+
+        $data = false;
+
+        $attrs = wc_get_attribute_taxonomies();
+
+        foreach ($attrs as $item) {
+            if ($item->attribute_label == $_POST['attr'] && $item->attribute_type != 'select') {
+                break;
+            } elseif ($item->attribute_label == $_POST['attr']) {
+
+                $name = wc_attribute_taxonomy_name($item->attribute_name);
+
+                $values = get_terms($name, array('hide_empty' => false));
+                if (is_array($values)) {
+                    $data = array_map(function( $elem ) {
+                        return $elem->slug;
+                    }, $values);
+                } else {
+                    $data = array();
+                }
+                break;
+            }
+        }
+        echo json_encode($data);
+    }
+
+    public function ajax_action_get_products_shipping_values() {
+
+        global $wpdb;
+
+        $data = false;
+
+        $query = $wpdb->prepare('SELECT meta_value FROM ' . $wpdb->postmeta . ' WHERE meta_key = %s', array('_shipping_' . strtolower($_POST['item'])));
+        $results = $wpdb->get_results($query);
+        $data = array_filter(array_unique(array_map(function( $elem ) {
+                            return $elem->meta_value;
+                        }, $results)), function( $elem ) {
+            return !empty($elem);
+        });
+
+        echo json_encode($data);
+    }
+
     public function send_headers($format) {
         switch ($format) {
+            case 'XLS':
+                header('Content-type: application/vnd.ms-excel');
+                header('Content-Disposition: attachment; filename="orders.xlsx"');
+                break;
             case 'CSV':
                 header('Content-type: text/csv');
                 header('Content-Disposition: attachment; filename="orders.csv"');
@@ -306,47 +360,47 @@ class WC_Order_Export_Admin {
 
     public function ajax_action_export_start() {
         $settings = $this->make_new_settings($_POST);
-	    
-	    $filename = tempnam("/tmp","orders");
-	    file_put_contents( $filename, '' );
+
+        $filename = tempnam("/tmp", "orders");
+        file_put_contents($filename, '');
         $total = WC_Order_Export_Engine::build_file($settings, 'estimate', 'file', 0, 0, $filename);
-        
-	    $file_id = current_time('timestamp');
-	    set_transient( $this->tempfile_prefix.$file_id, $filename, 60); 
-	    echo json_encode( array('total'=>$total , 'file_id'=>$file_id) );
+
+        $file_id = current_time('timestamp');
+        set_transient($this->tempfile_prefix . $file_id, $filename, 60);
+        echo json_encode(array('total' => $total, 'file_id' => $file_id));
     }
-    
+
     private function get_temp_file_name() {
-	    $filename = get_transient( $this->tempfile_prefix.$_REQUEST['file_id'] );
-	    if( $filename === false) {
-			echo json_encode(array('error' => __('Can not find exported file','woocommerce-order-export')));
-			die();
-	    }
-	    set_transient( $this->tempfile_prefix.$_REQUEST['file_id'], $filename, 60); 
-	    return $filename;
+        $filename = get_transient($this->tempfile_prefix . $_REQUEST['file_id']);
+        if ($filename === false) {
+            echo json_encode(array('error' => __('Can not find exported file', 'woocommerce-order-export')));
+            die();
+        }
+        set_transient($this->tempfile_prefix . $_REQUEST['file_id'], $filename, 60);
+        return $filename;
     }
 
     public function ajax_action_export_part() {
-		$settings = $this->make_new_settings($_POST);
+        $settings = $this->make_new_settings($_POST);
 
-        WC_Order_Export_Engine::build_file($settings, 'partial', 'file', intval($_POST['start']), $this->step, $this->get_temp_file_name() );
-	    echo json_encode(array('start' => $_POST['start'] + $this->step));
+        WC_Order_Export_Engine::build_file($settings, 'partial', 'file', intval($_POST['start']), $this->step, $this->get_temp_file_name());
+        echo json_encode(array('start' => $_POST['start'] + $this->step));
     }
-    
+
     public function ajax_action_export_finish() {
-		$settings = $this->make_new_settings($_POST);
-	    WC_Order_Export_Engine::build_file($settings, 'finish', 'file', 0, 0, $this->get_temp_file_name() );
+        $settings = $this->make_new_settings($_POST);
+        WC_Order_Export_Engine::build_file($settings, 'finish', 'file', 0, 0, $this->get_temp_file_name());
     }
-    
+
     public function ajax_action_export_download() {
-	    
-	    $format = basename($_GET[ 'format']);
-	    $filename = $this->get_temp_file_name();
-	    delete_transient( $this->tempfile_prefix.$_GET['file_id']); 
-	    
-	    $this->send_headers($format );
-	    readfile( $filename );
-	    unlink( $filename );
+
+        $format = basename($_GET['format']);
+        $filename = $this->get_temp_file_name();
+        delete_transient($this->tempfile_prefix . $_GET['file_id']);
+
+        $this->send_headers($format);
+        readfile($filename);
+        unlink($filename);
     }
 
     public function create_custom_schedules($schedules) {
