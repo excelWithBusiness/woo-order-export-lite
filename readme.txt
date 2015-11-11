@@ -53,9 +53,12 @@ Yes, you could email a request to algol.plus@gmail.com. We intensively develop t
 2. It's possible to filter orders by many parameters, not only by order date or status.
 3. You could select the fields to export, rename labels, reorder columns.
 4. The preview works for all formats.
-5. You could add custom field as new column to export.
+5. You could add custom field or taxonomy as new column to export.
 
 == Changelog ==
+
+= 1.1.1 =
+* Export products taxonomies
 
 = 1.1.0 =
 * Order exported records by ID

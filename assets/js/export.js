@@ -192,11 +192,16 @@ function add_bind_for_custom_fields(prefix, output_format, $to) {
     });
 
     jQuery('#button_custom_meta_' + prefix + '').click(function() {
-        var label = jQuery('#select_custom_meta_' + prefix + '').val();
+        var type = jQuery('#select_custom_meta_' + prefix + '').val() != '' ? 'meta' : 'taxonomies';
+        type = type + '_' + prefix;
+        var label = jQuery('#select_custom_' + type + '').val();
         var colname = jQuery('#colname_custom_meta_' + prefix + '').val();
+        if (colname == undefined || colname == '') {
+            colname = label;
+        }
         console.log(label);
         add_custom_meta($to, prefix, output_format, label, colname);
-        jQuery('#select_custom_meta_' + prefix + '').val("");
+        jQuery('#select_custom_' + type + '').val("");
         jQuery('#colname_custom_meta_' + prefix + '').val("");
         return false;
     });
@@ -248,7 +253,7 @@ function add_custom_meta(to, index_p, format, label, colname) {
                                                                 <input type=checkbox name=' + index_p + '[exported][' + label + ']   value="1">\
                                                                 <input class="mapping_fieldname" type=hidden name=' + index_p + '[label][' + label + '] value="' + label + '">\
                                                         </div>\
-                                                        <div class="mapping_col_2">' + colname + '</div>\
+                                                        <div class="mapping_col_2">' + label + '</div>\
                                                         <div class="mapping_col_3"><input class="mapping_fieldname" type=input name=' + index_p + '[colname][' + label + '] value="' + colname + '"></div>\
                                                 </li>\
                         ';

@@ -5,7 +5,7 @@
  * Description: Ultimate plugin to export WooCommerce orders (lite version)
  * Author: AlgolPlus
  * Author URI: http://algolplus.com/
- * Version: 1.1.0
+ * Version: 1.1.1
  * Text Domain: woocommerce-order-export
  * Domain Path: /i18n/languages/
  *

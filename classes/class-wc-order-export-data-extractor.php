@@ -648,7 +648,10 @@ class WC_Order_Export_Data_Extractor {
 			$item_meta = $item['item_meta'];
 			$row = array();
 			foreach($labels as $field=>$label) {
-				if(isset($item_meta[$field]))
+				if (strpos($field, '__') !== false && $taxonomies = wc_get_product_terms( $item['product_id'], substr($field, 2), array( 'fields' => 'names' ) )) {
+					$row[$field] = implode(', ', $taxonomies);
+				}
+				elseif(isset($item_meta[$field]))
 					$row[$field] = $item_meta[$field][0];
 				elseif(isset($item_meta["_".$field]))// or hidden field 
 					$row[$field] = $item_meta["_".$field][0];

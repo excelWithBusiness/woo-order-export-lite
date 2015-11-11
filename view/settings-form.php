@@ -659,7 +659,7 @@ $settings = $WC_Order_Export->get_export_settings( $mode, $id );
 
 		var modal = "<div id='sort_" + index_p + "'>";
 		jQuery.each( window['order_' + index_p + '_fields'], function( index, value ) {
-			var colname = (format=='XLS' || format=='CSV') ? value.label: ( format=='XML' ? to_xml_tags(index) :index);
+			var colname = (format=='XLS' || format=='CSV') ? value.colname: ( format=='XML' ? to_xml_tags(index) :index);
 			var checked = ( value.checked == 1 ) ? 'checked' : '';
 			var row = '<li class="mapping_row segment_modal_' + index + '">\
                                                         <div class="mapping_col_1">\
