@@ -3,7 +3,7 @@
 
     height: 800px;
     overflow: scroll;
-    width: 510px;
+    width: 530px;
     padding: 20px;
     border-color: rgb(187, 180, 180);
     border-style: solid;
@@ -84,7 +84,7 @@
     padding: 0px; 
     min-width: 100px;
 }
-#order_fields { list-style-type: none; margin: 0; padding: 0; width: 500px; }
+#order_fields { list-style-type: none; margin: 0; padding: 0; width: 490px; }
 #output_preview {border-color:green; border-style: dashed;    border-width: 1px; display:none; width:90% }
 .spit-settings-cols {width:20px}
 
@@ -230,6 +230,12 @@ input.date{
 .width-100{
     width: 100%;
 }
+.width-5{
+    width: 5%;
+}
+.width-15{
+    width: 15%;
+}
 .set-estination{
     display: none;
 }
@@ -300,7 +306,7 @@ input.date{
     margin-left: 10px !important;
 }
 
-#add_attributes,#add_locations{
+#add_attributes,#add_locations,#add_custom_fields{
     font-size: large;
 }
 
@@ -308,7 +314,7 @@ input.date{
     margin-bottom: 5px;
 }
 
-#text_attributes, #text_locations{
+#select_attributes, #text_locations,#select_custom_fields{
     width: 120px;
 }
 .dashicons{
@@ -360,4 +366,33 @@ input.date{
     -moz-opacity: 0.55;
     -khtml-opacity: 0.55;
     opacity: 0.55;
+}
+
+.email_body_textarea
+{
+    height: 451px; 
+    width: 736px;
+}
+#modal-email-body
+{
+    display: none;
+}
+.select_compare
+{
+    width: 60px;
+    margin-top: 0px;
+    margin-right: 6px;
+}
+
+#custom_meta_products_mode input, #custom_meta_coupons_mode input  {
+    width: auto;
+}
+
+#date_format_block, #time_format_block {
+    display: inline-block;
+    width: 48%;
+}
+
+#date_format_block select, #time_format_block select {
+    width: 70%;
 }
