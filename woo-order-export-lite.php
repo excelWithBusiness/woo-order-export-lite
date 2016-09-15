@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Woo Order Export Lite
+ * Plugin Name: Advanced Order Export For WooCommerce
  * Plugin URI: 
- * Description: Ultimate plugin to export WooCommerce orders (lite version)
+ * Description: Ultimate plugin to export WooCommerce sales
  * Author: AlgolPlus
  * Author URI: http://algolplus.com/
- * Version: 1.1.1
+ * Version: 1.2.1
  * Text Domain: woocommerce-order-export
  * Domain Path: /i18n/languages/
  *
@@ -31,7 +31,6 @@ if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins',
 		return;
 	}
 }
-
 
 include 'classes/class-wc-order-export-admin.php';
 include 'classes/class-wc-order-export-engine.php';
